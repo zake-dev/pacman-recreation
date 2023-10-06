@@ -5,16 +5,19 @@ using UnityEngine;
 public class PacStudentMovementHandler : MonoBehaviour
 {
     private AudioSource soundEffectSource;
+    [SerializeField]
+    private AudioClip moveSoundEffectClip;
     private Animator animator;
     private PositionTween positionTween;
 
     void Start()
     {
-        soundEffectSource = gameObject.GetComponent<AudioSource>();
+        soundEffectSource = gameObject.GetComponentInChildren<AudioSource>();
         animator = gameObject.GetComponent<Animator>();
 
         float moveSpeed = 0.3f; // move at 0.3s per single grid speed
         StartCoroutine(moveClockwiseAroundTopLeftBlock(moveSpeed));
+        StartCoroutine(playMovingSound(moveSpeed));
     }
 
     void Update()
@@ -50,6 +53,18 @@ public class PacStudentMovementHandler : MonoBehaviour
             positionTween = new PositionTween(transform, bottomLeftCornerPosition, topLeftCornerPosition, Time.time, duration);
             animator.SetTrigger("moveUp");
             yield return new WaitForSeconds(duration);
+        }
+    }
+
+    private IEnumerator playMovingSound(float moveSpeed)
+    {
+        soundEffectSource.clip = moveSoundEffectClip;
+        soundEffectSource.loop = false;
+
+        while (true)
+        {
+            yield return new WaitForSeconds(moveSpeed);
+            soundEffectSource.Play();
         }
     }
 }
